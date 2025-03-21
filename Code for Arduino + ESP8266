@@ -1,0 +1,41 @@
+#include <Servo.h>
+
+#define TRIG_PIN 6
+#define ECHO_PIN 7
+#define SERVO_PIN 9
+
+Servo myServo;
+long duration;
+int distance;
+
+void setup() {
+    Serial.begin(115200); // For ESP8266 communication
+    myServo.attach(SERVO_PIN);
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+    // Get distance from ultrasonic sensor
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+    
+    duration = pulseIn(ECHO_PIN, HIGH);
+    distance = duration * 0.034 / 2;
+
+    // Move servo based on distance
+    if (distance < 20) {
+        myServo.write(90);
+    } else {
+        myServo.write(0);
+    }
+
+    // Send data to ESP8266
+    Serial.print("Distance:");
+    Serial.println(distance);
+    
+    delay(500);
+}
