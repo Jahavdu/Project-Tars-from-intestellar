@@ -1,0 +1,36 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+
+const char* ssid = "Your_WiFi_SSID";
+const char* password = "Your_WiFi_Password";
+
+ESP8266WebServer server(80);
+String sensorData = "No data";
+
+void handleRoot() {
+    server.send(200, "text/plain", "Ultrasonic Distance: " + sensorData + " cm");
+}
+
+void setup() {
+    Serial.begin(115200);
+    WiFi.begin(ssid, password);
+    
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(1000);
+        Serial.println("Connecting...");
+    }
+    
+    Serial.println("WiFi Connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+
+    server.on("/", handleRoot);
+    server.begin();
+}
+
+void loop() {
+    if (Serial.available()) {
+        sensorData = Serial.readStringUntil('\n');
+    }
+    server.handleClient();
+}
